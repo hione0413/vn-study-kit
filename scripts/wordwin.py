@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Snow Globe 단어 창: 게임의 현재 줄에 나온 N4 초과 단어를 읽기·뜻과 함께 보여 준다.
-실행: python wordwin.py          (창)
-      python wordwin.py --probe  (게임 메모리에서 줄 위치 탐색, 진단용)
+"""word window: shows reading and meaning of the words on the line the game is displaying.
+run:  python wordwin.py          (window)
+      python wordwin.py --probe  (look for script lines in game memory, diagnostics)
+language and gloss files: see i18n.py
 """
 import os, re, sys, struct, threading, time, collections, bisect
 
@@ -11,6 +12,7 @@ _argv = sys.argv; sys.argv = ['wordwin']
 import furi
 sys.argv = _argv
 import memscan
+import i18n
 
 FILES = os.path.join(os.path.dirname(HERE), 'files')
 ORIG = os.path.join(FILES, 'SCRIPT.PAK.orig')
@@ -19,9 +21,12 @@ FIX = {'悶着': 'もんちゃく', '紅': 'べに', '額': 'ひたい', '紅葉
 STRIP = re.compile(r'\$\[(.*?)\$/.*?\$\]', re.S)
 
 
-def load_ko(name='ko.tsv'):
+def load_ko(name=None):
     ko = {}
-    for l in open(os.path.join(HERE, name), encoding='utf-8'):
+    path = os.path.join(HERE, name or i18n.gloss_files(HERE)[0])
+    if not os.path.exists(path):
+        return ko
+    for l in open(path, encoding='utf-8'):
         l = l.rstrip('\n')
         if '\t' in l:
             w, m = l.split('\t', 1); ko[w] = m
@@ -35,7 +40,7 @@ def plain(t):
 
 def build_lines():
     """one entry per message line, in play order. script text is kept in memory only (for matching)."""
-    ko = load_ko(); basic = load_ko('ko_basic.tsv')
+    ko = load_ko(); basic = load_ko(i18n.gloss_files(HERE)[1])
     orig = furi.Pak(ORIG if os.path.exists(ORIG) else CUR)
     cur = furi.Pak(CUR)
     lines = []
@@ -123,17 +128,17 @@ class Follower:
 
     def current(self):
         if not self.proc and not self._attach():
-            return None, '게임 대기 중'
+            return None, 'wait_game'
         raw = self.proc.read(self.addr, 8)
         if len(raw) < 8:
-            self._detach(); return None, '게임 대기 중'
+            self._detach(); return None, 'wait_game'
         cur = struct.unpack('<Q', raw)[0]
         if not cur:
-            return self.last, '대사 대기 중'
+            return self.last, 'wait_line'
         if self.base is None or not (self.base < cur <= self.base + len(self.raw)):
             self.base = self._find_base(cur)
             if self.base is None:
-                return self.last, '대사 대기 중 (연동 안 되면 ◀ ▶ 사용)'
+                return self.last, 'wait_hint'
         off = cur - self.base
         for o, sz, ch, starts, first, spans in self.files:
             if o <= off <= o + sz and starts:
@@ -146,8 +151,8 @@ class Follower:
                     self.last = first + k
                 elif self.last is None or self.lines[self.last]['ch'] != ch:
                     self.last = first
-                return self.last, '연동됨'
-        return self.last, '연동됨' if self.last is not None else '대사 대기 중'
+                return self.last, 'linked'
+        return self.last, 'linked' if self.last is not None else 'wait_line'
 
 
 # ---------------------------------------------------------------- probe

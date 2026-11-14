@@ -1,5 +1,7 @@
 # vn-study-kit
 
+> **English summary** — A Claude Code skill that turns a Japanese visual novel you own into study material: it adds furigana to every kanji in the game script, builds a small always-on-top window that follows the line on screen and shows each word's reading and meaning, and generates per-chapter vocabulary sheets. Glosses and UI can be in your language (Korean, English and Japanese UI strings are built in; Claude writes the glosses in the language you choose). Windows + Python only, no text-hooking tools. It never ships game files and does not translate the script. The rest of this README is in Korean.
+
 일본어 비주얼 노벨을 **일본어 공부용**으로 바꿔 주는 Claude Code 스킬입니다.
 한글패치가 없는 게임을 일본어 그대로 플레이하면서, 읽기와 단어 뜻을 바로 확인할 수 있게 합니다.
 
@@ -50,6 +52,16 @@ Claude Code를 다시 시작하면 `/vn-study-kit`이 목록에 나타납니다.
 3. 단어 창 연동 단계에서는 게임을 켜서 대사가 떠 있는 상태로 두라는 안내가 나옵니다.
 4. 끝나면 게임 폴더의 `study` 폴더에 있는 `단어창 실행.bat`을 더블클릭해 사용합니다.
 
+## 언어 선택
+
+뜻풀이와 화면 문구의 언어를 고를 수 있습니다. 작업을 시작할 때 Claude가 어떤 언어로 만들지 물어봅니다.
+
+- **뜻풀이**: 고른 언어로 Claude가 게임마다 새로 씁니다. 어떤 언어든 가능합니다.
+- **화면 문구**(단어 창의 버튼·상태 표시, 단어장 페이지): 한국어, 영어, 일본어가 들어 있습니다. 다른 언어는 `scripts/i18n.py`에 표를 하나 추가하면 되고, 빠진 항목은 영어로 표시됩니다.
+- 선택한 언어는 게임의 `study\config.json`에 저장됩니다. 예: `{"lang": "en", "game": "Game Title"}`
+
+영어와 일본어 화면은 단어장 페이지 생성까지 확인했고, 실제 게임에서 끝까지 써 본 것은 한국어뿐입니다.
+
 ## 지원 범위
 
 | 게임 | 상태 |
@@ -69,6 +81,7 @@ Claude Code를 다시 시작하면 `/vn-study-kit`이 목록에 나타납니다.
 | `scripts/verify.py` | 패치 후 원문이 그대로인지 검증 |
 | `scripts/vocab.py`, `scripts/sheet.py` | 단어 추출, 단어장 페이지와 Anki 파일 생성 |
 | `scripts/wordwin.py`, `scripts/wordwin_ui.py` | 단어 창 |
+| `scripts/i18n.py` | 언어별 화면 문구와 뜻풀이 파일 선택 |
 | `scripts/memscan.py` | 게임 메모리 읽기 전용 도우미 |
 | `scripts/explore_*.py` | 새 게임에서 현재 줄 위치를 찾는 탐색 도구 |
 | `examples/snow-globe/` | Snow Globe용 단어 뜻풀이와 읽기 수정 목록 |
@@ -81,3 +94,7 @@ Claude Code를 다시 시작하면 `/vn-study-kit`이 목록에 나타납니다.
 - Steam 업데이트나 무결성 검사를 하면 후리가나 패치가 사라집니다. 게임이 업데이트되면 단어 창 연동 위치도 다시 찾아야 할 수 있습니다.
 - N5/N4 단어 구분에는 공개 JLPT 단어 목록을 내려받아 씁니다. 목록 자체는 이 저장소에 넣지 않았습니다.
 - 스크린샷은 이 도구의 화면만 실었습니다. 게임 화면은 넣지 않았습니다.
+
+## 라이선스
+
+[MIT](LICENSE)
