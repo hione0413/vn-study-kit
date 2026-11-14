@@ -38,7 +38,7 @@ Claude Code에게 게임 폴더를 열어 주고 `/vn-study-kit`이라고 하면
 Claude Code의 스킬 폴더에 이 저장소를 그대로 받습니다.
 
 ```
-git clone <이 저장소 주소> "%USERPROFILE%\.claude\skills\vn-study-kit"
+git clone https://github.com/hione0413/vn-study-kit "%USERPROFILE%\.claude\skills\vn-study-kit"
 ```
 
 Claude Code를 다시 시작하면 `/vn-study-kit`이 목록에 나타납니다.
